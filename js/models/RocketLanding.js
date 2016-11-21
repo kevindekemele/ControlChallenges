@@ -15,7 +15,7 @@ Models.RocketLanding.prototype.vars =
 {
 	TWR: 2,
 	throttle: 1,
-	g: 9.81,
+	g: 1.6,
 	theta: 0,
 	dtheta: 0,
 	gimbalAngle: -0.1,
@@ -27,7 +27,7 @@ Models.RocketLanding.prototype.vars =
 	dy: 0,
 	throttleLimit: 0,
 	T: 0,
-	landingConstraints: {dx:5,dy:5,dtheta:0.1,sinTheta:0.05},
+	landingConstraints: {dx:5,dy:5,dtheta:0.1,sinTheta:0.20},
 };
 
 Models.RocketLanding.prototype.detectCollision = function ()
@@ -49,13 +49,15 @@ Models.RocketLanding.prototype.detectCollision = function ()
 
 Models.RocketLanding.prototype.landed = function ()
 {
-	return this.detectCollision()
-		&& Math.abs(this.x) < 30
-		&& Math.abs(this.dx) < this.landingConstraints.dx
+	return Math.abs(this.y) < 26
 		&& Math.abs(this.dy) < this.landingConstraints.dy
 		&& Math.abs(this.dtheta) < this.landingConstraints.dtheta
 		&& Math.abs(Math.sin(this.theta)) < this.landingConstraints.sinTheta
 		&& Math.cos(this.theta) > 0;
+		//this.detectCollision()
+		//&& Math.abs(this.x) < 30
+		//&& Math.abs(this.dx) < this.landingConstraints.dx
+		
 }
 
 Models.RocketLanding.prototype.crashed = function ()
@@ -72,7 +74,7 @@ Models.RocketLanding.prototype.simulate = function (dt, controlFunc)
 		var input = controlFunc(new Models.RocketLanding(this)); // call user controller
 		if(typeof input != 'object' || typeof input.throttle != 'number' || typeof input.gimbalAngle != 'number') 
 			throw "Error: The controlFunction must return an object: {throttle:number, gimbalAngle:number}";
-		copy.throttle = Math.max(copy.throttleLimit,Math.min(1,input.throttle)); // input limits
+		copy.throttle = input.throttle;//Math.max(copy.throttleLimit,Math.min(1,input.throttle)); // input limits
 		copy.gimbalAngle = Math.max(-.2,Math.min(.2,input.gimbalAngle));
 		var state = [this.x, this.dx, this.y, this.dy, this.theta, this.dtheta]; // state vector
 		var soln = numeric.dopri(0,dt,state,function(t,x){ return Models.RocketLanding.ode(copy,x); },1e-4).at(dt); // numerical integration
@@ -148,7 +150,7 @@ Models.RocketLanding.prototype.drawRocket = function (ctx, canvas, i){
 	var L = this.Length;
 	var W = this.Width;
 	ctx.save();
-	ctx.translate(this.x,this.y);
+	ctx.translate(((this.x+175)%350)-175,this.y);
 	ctx.rotate(-this.theta);
 	
 	ctx.lineWidth=L/40;
@@ -211,5 +213,7 @@ Models.RocketLanding.prototype.infoText = function ()
 		+ "\n/* Vertical velocity   */ rocket.dy     = " + round(this.dy,2)
 		+ "\n/* Angle from vertical */ rocket.theta  = " + round(this.theta,2)
 		+ "\n/* Angular velocity    */ rocket.dtheta = " + round(this.dtheta,2)
-		+ "\n/* Simulation time     */ rocket.T      = " + round(this.T,2);	
+		+ "\n/* Simulation time     */ rocket.T      = " + round(this.T,2)
+					+ "\n/* Throttle     */ Throttle    = " + round(this.throttle,2);	
+
 }
