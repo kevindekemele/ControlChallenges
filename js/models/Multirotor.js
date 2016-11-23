@@ -27,7 +27,7 @@ Models.Multirotor.prototype.vars =
 	y: 0,
 	dy: 0,
 	T: 0,
-	imgURL:'',
+	imgURL:'img/multirotor_lowres.png',
 };
 
 Models.Multirotor.prototype.simulate = function (dt, controlFunc)
@@ -82,10 +82,10 @@ Models.Multirotor.prototype.drawVehicle = function (ctx, canvas) {
 		ctx.drawImage(imgData.image,0,0);
 		ctx.restore();
 	} else {
-		ctx.lineJoin = 'round';
-		ctx.lineCap = 'round';
-		drawLine(ctx,-2,0,2,0,.02);
-		drawLine(ctx,0,-1,0,1,.02);
+		 ctx.lineJoin = 'round';
+		 ctx.lineCap = 'round';
+		 drawLine(ctx,-2,0,2,0,.02);
+		 drawLine(ctx,0,-1,0,1,.02);
 	}
 
 	// draw force vectors
