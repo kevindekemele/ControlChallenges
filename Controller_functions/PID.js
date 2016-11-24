@@ -10,17 +10,21 @@ var P = 2,  // Proportional constant
 var upper_bound = 0, // Upper bound controller
     lower_bound = 0; // Lower bound controller
 
+var anti_reset_windup = false;
+
 var prev_t = 0, // Previous time (for D and I)
       prev_p_e = 0; // Previous error (For D)
 
-function controlFunction(block)
+
+	  
+function controlFunction(block) // Block is the model
 {
   var p_e = cx - block.x, // Error, setpoint - measured
-       d_e;
+       d_e;					// derivative
   if(block.T !== 0){
     d_e = (p_e - prev_p_e)/((block.T - prev_t)); // Simple derivative
   }else{
-    d_e = 0;
+    d_e = 0; // Initially, no derivative
   }
 
   i_e = i_e + (block.T-prev_t)*p_e; // Integral term
@@ -33,14 +37,14 @@ function controlFunction(block)
 
   // Anti reset_windup
 
-if(!(upper_bound ==0 && lower_bound ==0)&& I !=0){
+if(!(upper_bound ==0 && lower_bound ==0)&& I !=0 && anti_reset_windup){
   if(control > upper_bound){
     control = upper_bound;
   }
   elseif(control < lower_bound){
     control = lower bound;
   }
-  ie = (control - (P * p_e  + D*d_e))/I; 
+  ie = (control - (P * p_e  + D*d_e))/I;  // Clipped, so integral term needs to be adjusted
 }
   return control;
 }
